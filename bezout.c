@@ -14,13 +14,7 @@
 // 	 r' := rs - q*r', u' = us - q*u', v' = vs - q*v'
 // 	fait
 // renvoyer (r, u, v)
-//#include "rsa_header.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <assert.h>
-#include <time.h>
+#include "rsa_header.h"
 
 long bezout(uint a,uint b,long *u,long *v){
 /// \pre a, b entier naturels
