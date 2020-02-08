@@ -21,6 +21,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <time.h>
+#include "rsa_header.h"
 
 long bezout(uint a,uint b,long *u,long *v){
 /// \pre a, b entier naturels
