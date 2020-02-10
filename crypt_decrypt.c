@@ -9,4 +9,7 @@ void RSAcrypt(unsigned char *msg, uint64 *cryptedMsg, rsaKey_t pubKey){
 
 void RSAdecrypt(unsigned char *msg, uint64 *cryptedMsg, rsaKey_t privKey){
 
+  for (int i = 0; i< 100; i++) {
+    msg[i] = puissance_mod_n(cryptedMsg[i], privKey.E, privKey.N);
+  }
 }
