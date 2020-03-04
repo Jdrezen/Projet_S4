@@ -70,6 +70,7 @@ void printBlock(block_t blk);
 void convertInt2uchar(uint nb,uchar *tab4bytes);
 char *base64_encode(const uchar *data,size_t input_length,size_t *output_length);
 unsigned char *base64_decode(const char *data,size_t input_length,size_t *output_length);
+void base64_cleanup();
 
 // avec les blocs
 uint64 RSAcrypt1BlockGmp(uint64 blockInt, rsaKey_t pubKey);
