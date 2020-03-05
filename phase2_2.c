@@ -8,15 +8,15 @@ FILE *logfp;
 int main(){
   logfp = stdout;
 
-  rsaKey_t pubKey = {7,5141};
   rsaKey_t privKey = {4279,5141};
+  rsaKey_t pubKey = {7,5141};
 
-  int nbCar;
+  int nbCar = 240;
   printf("Chiffement du message...\n");
-  RSAcryptFile("Data/msg.txt","Data/res.txt",pubKey,&nbCar);
-  printf("Fini, %d caractères lus\n",nbCar);
-  printf("Chiffement du message...\n");
+  //RSAcryptFile("Data/msg.txt","Data/res.txt",pubKey,&nbCar);
+  printf("Fini, %d caractères lus à la dernière opération\n",nbCar);
+  printf("Déchiffement du message...\n");
   RSAunCryptFile("Data/res.txt","Data/msg_decrypt.txt",privKey,nbCar);
-  printf("Fini, %d caractères lus\n",nbCar);
+  printf("Fini, %d caractères lus à la dernière opération\n",nbCar);
   return 0;
 }
