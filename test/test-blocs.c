@@ -1,4 +1,4 @@
-#include "rsa_header.h"
+#include "../src/rsa_header.h"
 
 int main(){
 	uchar *msg = (uchar *) malloc(5*sizeof(char));
