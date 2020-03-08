@@ -1,7 +1,7 @@
 /// \file phase2-2.c
 /// \brief test de la phase 2.2
 
-#include "rsa_header.h"
+#include "../src/rsa_header.h"
 const int batch_length = 4;
 FILE *logfp;
 

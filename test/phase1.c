@@ -1,6 +1,6 @@
 /// \author Vincent Dugat
 /// \date summer 2019
-#include "rsa_header.h"
+#include "../src/rsa_header.h"
 
 FILE *logfp;
 
