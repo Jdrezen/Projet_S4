@@ -79,7 +79,6 @@ void RSAcryptFile(char *inFilename, char *outFilename, rsaKey_t pubKey, int *out
 }
 
 void RSAunCryptFile(char *inFilename,char *outFilename,rsaKey_t privKey, int length){
- printKey(privKey);
  FILE *enter;
  FILE *exit;
  uchar **buffer_lecture ;
@@ -144,6 +143,7 @@ void RSAunCryptFile(char *inFilename,char *outFilename,rsaKey_t privKey, int len
 
  fclose(enter);
  fclose(exit);
+ 
  for (int i = 0; i< nb; i++){
    free(buffer_lecture[i]);
    free(buffer_calcul[i]);
