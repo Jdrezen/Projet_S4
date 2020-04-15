@@ -86,13 +86,18 @@ void RSAcryptFile(char *inFilename,
 void RSAunCryptFile(char *inFilename,char *outFilename,rsaKey_t privKey, int length);
 
 // signature
-tabUint64_t * signText(char *inFilename,rsaKey_t signKey);
+//tabUint64_t * signText(char *inFilename,rsaKey_t signKey);
 void inputKey(uint64 E,uint64 N,rsaKey_t *key);
 tabUint64_t * string2intBlocks(uchar *str);
 uchar * num2string(tabUint64_t numArray);
 uint64 * giveMeMem(int dim);
 tabUint64_t * RSAcryptUint64(tabUint64_t numMsg,rsaKey_t pubKey);
 tabUint64_t * RSAunCryptUint64(tabUint64_t numMsgC,rsaKey_t privKey);
+void text2sha(char *inFilename,char *shaStr);
+void signText(char *inFilename, char *outFilename, rsaKey_t signKey);
+bool verifyText(char *sign, char *inFilename, rsaKey_t pubKey);
+void uncryptSign(char *inFilename , char *sign, rsaKey_t pubKey);
+void uncryptSignedText(char *inFilename , char *sign, char *outFilename, rsaKey_t pubKey, rsaKey_t privKey);
 // GMP
 void mersenneGmp(mpz_t resGmp,uint64 max,uint64 p); // ovni
 void printKeyPair(keyPair_t keyPair);

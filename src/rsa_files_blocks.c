@@ -101,9 +101,9 @@ void RSAfile_decrypt(char *inFilename, char *outFilename, rsaKey_t privKey){
   buffer_lecture = malloc(taille * sizeof(uchar));
 
   while (!feof(enter)) {
-    fin_block = fread(&buffer_lecture, sizeof(uchar), taille, enter);
+    fin_block = fread(buffer_lecture, sizeof(uchar), taille, enter);
     if (fin_block == taille){
-      buffer_calcul = base64_decode(&buffer_lecture, taille, &output_length);
+      buffer_calcul = base64_decode(buffer_lecture, taille, &output_length);
       block = RSAdecrypt1BlockGmp(*buffer_calcul, privKey);
       convertInt2uchar(block, buffer_ecriture);
       fwrite(&buffer_ecriture, sizeof(uchar), 4,exit);
