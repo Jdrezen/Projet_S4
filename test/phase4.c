@@ -10,20 +10,8 @@ int main(int argc,char **argv){
   /*A ajouter pour les fichiers cryptés*/
   //RSAfile_crypt("Data/msg.txt", "Data/msg_decrypt.txt", pubKey);
 
-  printf("Calcul du hash...\n");
-  signText("Data/msg.txt", "Data/msg_decrypt.txt", privKey);
-  printf("Ecriture dans fichier...\n");
-  printf("Début vérification...\n");
-
   uncryptSignedText("Data/msg.txt", "Data/msg_decrypt.txt" , "Data/res.txt", pubKey, privKey);
 
-
-
-  /*if(verifyText("Data/msg.txt", "Data/msg_decrypt.txt" , pubKey) == true){
-      printf("C'est validé\n");
-  }
-  else{
-    printf("Malorie a encore frappé\n");
-  }*/
+  requestBlockChain("../../Desktop/Java/Projet_S4_DIYPG/TxEnAttente.txt", "CCK", "jeremie.drezen@gmail.com", pubKey, privKey);
   return 0;
 }

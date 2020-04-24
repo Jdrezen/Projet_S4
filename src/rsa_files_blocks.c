@@ -20,10 +20,9 @@ void RSAfile_crypt(char *inFilename, char *outFilename, rsaKey_t pubKey){
   uchar **buffer_lecture ;
   uchar *buffer_ecriture;
   int block;
-  int nb_chars;
   int length_buffer;
+  int ajout;
   size_t output_length;
-  int k=0;
   uint64 calc;
 
   /*Verification fopen*/
@@ -38,8 +37,10 @@ void RSAfile_crypt(char *inFilename, char *outFilename, rsaKey_t pubKey){
 
   /*Recuperation de length*/
   fseek(enter, 0, SEEK_END);
-  nb_chars=ftell(enter)/4;
-  length_buffer = nb_chars + 1;
+  length_buffer = ftell(enter)/4;
+  if((ajout = ftell(enter) % 4) != 0){
+    length_buffer++;
+  }
 
   /*Verification malloc*/
   buffer_lecture = malloc(length_buffer*sizeof(uchar*));
@@ -57,15 +58,20 @@ void RSAfile_crypt(char *inFilename, char *outFilename, rsaKey_t pubKey){
 
   /*Recuperation du ficher dans un tableau*/
   fseek(enter, 0, SEEK_SET);
-  while (!feof(enter)) {
-      fread(buffer_lecture[k], sizeof(uchar), 4, enter);
+  int taille_block;
+  for(int k = 0; k < length_buffer; k++) {
+      taille_block = fread(buffer_lecture[k], sizeof(uchar), 4, enter);
+      if(taille_block != 4){
+        for(int i = taille_block; i <= 4; i++){
+          buffer_lecture[k][i-1] = ' ';
+        }
+      }
       block = convert_4byte2int(buffer_lecture[k]);
       calc = RSAcrypt1BlockGmp(block, pubKey);
       buffer_ecriture = base64_encode(&calc,sizeof(uint64),&output_length);
       fwrite(buffer_ecriture, sizeof(uchar), output_length, exit);
       fwrite(" " , sizeof(uchar), 1,exit);
       fflush(stdout);
-      k++;
   }
 
   fclose(enter);
@@ -80,6 +86,7 @@ void RSAfile_decrypt(char *inFilename, char *outFilename, rsaKey_t privKey){
   uchar *buffer_lecture;
   uchar buffer_ecriture[4];
   int taille = 0;
+  int nb_cara;
   uint64 block;
   size_t output_length;
   size_t fin_block;
@@ -96,11 +103,14 @@ void RSAfile_decrypt(char *inFilename, char *outFilename, rsaKey_t privKey){
   while(fgetc(enter) != ' '){
     taille ++;
   }
+  fseek(enter, 0, SEEK_END);
+  nb_cara = ftell(enter)/taille;
+
   fseek(enter, 0, SEEK_SET);
 
   buffer_lecture = malloc(taille * sizeof(uchar));
 
-  while (!feof(enter)) {
+  for(int i = 0; i < nb_cara; i++) {
     fin_block = fread(buffer_lecture, sizeof(uchar), taille, enter);
     if (fin_block == taille){
       buffer_calcul = base64_decode(buffer_lecture, taille, &output_length);

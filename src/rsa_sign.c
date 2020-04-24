@@ -156,3 +156,22 @@ void uncryptSignedText(char *inFilename , char *sign, char *outFilename, rsaKey_
     printf("Le document a été modifié\n");
   }
 }
+
+void requestBlockChain(char *file, char *event, char *mail, rsaKey_t publicKey, rsaKey_t signKey){
+    FILE *enter;
+    time_t now = time(NULL);
+    struct tm * tm = localtime(&now);
+    char date[24];
+
+    if((enter = fopen(file,"a")) == NULL){
+      fprintf(stderr, "Erreur sur le fichier d'entrée\n");
+      return;
+    }
+
+    strftime(date, sizeof date, "%d %B %Y", tm);
+    fprintf(enter, "Date %s\n", date);
+    fprintf(enter, "Type %s\n",event);
+    fprintf(enter, "Clé Publique (%lu , %lu)\n",publicKey.E, publicKey.N);
+    fprintf(enter, "Clé Signature (%lu , %lu)\n",signKey.E, signKey.N);
+    fprintf(enter, "%s\n",mail);
+}

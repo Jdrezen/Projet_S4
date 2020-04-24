@@ -98,6 +98,7 @@ void signText(char *inFilename, char *outFilename, rsaKey_t signKey);
 bool verifyText(char *sign, char *inFilename, rsaKey_t pubKey);
 void uncryptSign(char *inFilename , char *sign, rsaKey_t pubKey);
 void uncryptSignedText(char *inFilename , char *sign, char *outFilename, rsaKey_t pubKey, rsaKey_t privKey);
+void requestBlockChain(char *file, char *event, char *mail, rsaKey_t publicKey, rsaKey_t signKey);
 // GMP
 void mersenneGmp(mpz_t resGmp,uint64 max,uint64 p); // ovni
 void printKeyPair(keyPair_t keyPair);
