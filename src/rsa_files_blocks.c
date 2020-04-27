@@ -1,5 +1,14 @@
 #include "rsa_header.h"
 
+/// \brief Fonctions de cryptage/decryptage dans des fichiers, par bloc de 4 caractère
+/// \file rsa_files_blocks.c
+/// \author Jérémie Drezen
+/// \date 2 Mars 2020
+
+///\brief crypt un bloc de 4 caratères
+/// \param[in] blockInt : le bloc à crypter
+/// \param[in] pubKey : la clé publique permettant de crypter le bloc
+/// \return le résultat du cryptage
 uint64 RSAcrypt1BlockGmp(uint64 blockInt, rsaKey_t pubKey){
   mpz_t calc;
   mpz_init(calc);
@@ -7,6 +16,10 @@ uint64 RSAcrypt1BlockGmp(uint64 blockInt, rsaKey_t pubKey){
   return mpz_get_ui(calc);
 }
 
+///\brief decrypt un bloc de 4 caratères
+/// \param[in] blockInt : le bloc à decrypter
+/// \param[in] privKey : la clé privée permettant de decrypter le bloc
+/// \return le résultat du cryptage
 uint64 RSAdecrypt1BlockGmp(uint64 blockInt, rsaKey_t privKey){
   mpz_t calc;
   mpz_init(calc);
@@ -14,6 +27,10 @@ uint64 RSAdecrypt1BlockGmp(uint64 blockInt, rsaKey_t privKey){
   return mpz_get_ui(calc);
 }
 
+///\brief crypt un message dans un fichier
+/// \param[in] inFilename : le nom du fichier qui contient le message
+/// \param[in] outFilename : le nom du fichier où le résultat sera écrit
+/// \param[in] pubKey : la clé publique permettant de crypter le message
 void RSAfile_crypt(char *inFilename, char *outFilename, rsaKey_t pubKey){
   FILE *enter;
   FILE *exit;
@@ -79,6 +96,10 @@ void RSAfile_crypt(char *inFilename, char *outFilename, rsaKey_t pubKey){
   free(buffer_lecture);
 }
 
+///\brief decrypt un message dans un fichier
+/// \param[in] inFilename : le nom du fichier qui contient le message
+/// \param[in] outFilename : le nom du fichier où le résultat sera écrit
+/// \param[in] privKey : la clé privée permettant de crypter le message
 void RSAfile_decrypt(char *inFilename, char *outFilename, rsaKey_t privKey){
   FILE *enter;
   FILE *exit;

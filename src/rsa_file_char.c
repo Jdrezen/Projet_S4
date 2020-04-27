@@ -1,5 +1,15 @@
 #include "rsa_header.h"
 
+/// \brief Fonctions de cryptage/decryptage dans des fichiers, caractère par caractère
+/// \file rsa_file_char.c
+/// \author Jérémie Drezen
+/// \date 11 Février 2020
+
+///\brief crypt un message dans un fichier
+/// \param[in] inFilename : le nom du fichier qui contient le message
+/// \param[in] outFilename : le nom du fichier où le résultat sera écrit
+/// \param[in] pubKey : la clé publique permettant de crypter le message
+/// \param[in] output_length : la taille du fichier de sortie
 void RSAcryptFile(char *inFilename, char *outFilename, rsaKey_t pubKey, int *output_length){
  FILE *enter;
  FILE *exit;
@@ -78,6 +88,11 @@ void RSAcryptFile(char *inFilename, char *outFilename, rsaKey_t pubKey, int *out
  free(buffer_ecriture);
 }
 
+///\brief decrypt un message dans un fichier
+/// \param[in] inFilename : le nom du fichier qui contient le message crypté
+/// \param[in] outFilename : le nom du fichier où le résultat sera écrit
+/// \param[in] privKey : la clé privée permettant de decrypter le message
+/// \param[in] length : la taille du fichier d'entrée
 void RSAunCryptFile(char *inFilename,char *outFilename,rsaKey_t privKey, int length){
  FILE *enter;
  FILE *exit;
@@ -143,7 +158,7 @@ void RSAunCryptFile(char *inFilename,char *outFilename,rsaKey_t privKey, int len
 
  fclose(enter);
  fclose(exit);
- 
+
  for (int i = 0; i< nb; i++){
    free(buffer_lecture[i]);
    free(buffer_calcul[i]);
