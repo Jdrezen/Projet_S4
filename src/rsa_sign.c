@@ -1,5 +1,13 @@
 #include "rsa_header.h"
 
+/// \brief Fonctions de signature
+/// \file rsa_sign.c
+/// \author Jérémie Drezen
+/// \date 15 Avril 2020
+
+///\brief calcule le hash d'un fichier
+/// \param[in] inFilename : le nom du fichier
+/// \param[in] shaStr : le hash du fichier
 void text2sha(char *inFilename,char *shaStr){
 
   int nb_char = 0;
@@ -26,6 +34,10 @@ void text2sha(char *inFilename,char *shaStr){
   fclose(enter);
 }
 
+///\brief calcule la signature d'un texte
+/// \param[in] inFilename : le nom du fichier dont on veut la signature
+/// \param[in] outFilename : le nom du fichier où la signature sera écrite
+/// \param[in] signKey : la clé permettant de signer le fichier
 void signText(char *inFilename, char *outFilename, rsaKey_t signKey){
 
   FILE *exit;
@@ -66,12 +78,8 @@ void signText(char *inFilename, char *outFilename, rsaKey_t signKey){
       j = 0;
       k++;
     }
-
     buffer_lecture[k][j] = hashRes[i];
-  //  printf("buffer[%d][%d] : %c\n",k,j,buffer_lecture[k][j]);
-
     j++;
-    //printf("%d\n",i);
   }
 
   for (size_t i = 0; i < length_buffer; i++) {
@@ -85,15 +93,14 @@ void signText(char *inFilename, char *outFilename, rsaKey_t signKey){
   fclose(exit);
 }
 
+///\brief vérifie si un fichier corresponds à sa signature
+/// \param[in] inFilename : le nom du fichier
+/// \param[in] sign : la signature du fichier
+/// \param[in] pubKey : la clé permettant de vérifier le fichier
+/// \return : vrai si le fichier corresponds à sa signature, faux sinon
 bool verifyText(char *inFilename, char *sign, rsaKey_t pubKey){
   char signText[SHA256_BLOCK_SIZE * 2 + 1];
   char hashRes[SHA256_BLOCK_SIZE * 2 + 1];
-  FILE *enter;
-
-  if((enter = fopen(sign,"r")) == NULL){
-    fprintf(stderr, "Erreur sur le fichier de sortie\n");
-    return false;
-  }
 
   uncryptSign(sign , signText, pubKey);
 
@@ -105,6 +112,10 @@ bool verifyText(char *inFilename, char *sign, rsaKey_t pubKey){
   return false;
 }
 
+///\brief decrypte la signature d'un fichier
+/// \param[in] inFilename : le nom du fichier où se trouve la signature
+/// \param[in] sign : la signature decrypté du fichier
+/// \param[in] pubKey : la clé permettant de decrypter la signature
 void uncryptSign(char *inFilename , char *sign, rsaKey_t pubKey){
   FILE *enter;
   uint64 *buffer_calcul;
@@ -155,4 +166,30 @@ void uncryptSignedText(char *inFilename , char *sign, char *outFilename, rsaKey_
   else{
     printf("Le document a été modifié\n");
   }
+}
+
+///\brief écrit une requête pour la blockchain dans un fichier
+/// \param[in] file : le nom du fichier
+/// \param[in] event : le type d'évenement de la blockchain
+/// \param[in] mail : le mail de l'emetteur de la requête
+/// \param[in] publicKey : la clé publique de l'emetteur
+/// \param[in] signKey : la clé de signature de l'emetteur
+void requestBlockChain(char *file, char *event, char *mail, rsaKey_t publicKey, rsaKey_t signKey){
+    FILE *enter;
+    time_t now = time(NULL);
+    struct tm * tm = localtime(&now);
+    char date[24];
+
+    if((enter = fopen(file,"a")) == NULL){
+      fprintf(stderr, "Erreur sur le fichier d'entrée\n");
+      return;
+    }
+
+    strftime(date, sizeof date, "%d %B %Y", tm);
+    fprintf(enter, "Date %s\n", date);
+    fprintf(enter, "Type %s\n",event);
+    fprintf(enter, "Clé Publique (%lu , %lu)\n",publicKey.E, publicKey.N);
+    fprintf(enter, "Clé Signature (%lu , %lu)\n",signKey.E, signKey.N);
+    fprintf(enter, "%s\n",mail);
+    fclose(enter);
 }

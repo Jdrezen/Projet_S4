@@ -46,3 +46,7 @@ $(OBJDIR)/%.o: $(TESTDIR)/%.c
 clean:
 	rm -f $(OBJDIR)/*.o
 	rm -f $(BINDIR)/*
+	rm -rf Documentation/html/*
+
+doc:
+	@doxygen Documentation/Doxyfile

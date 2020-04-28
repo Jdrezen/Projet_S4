@@ -1,21 +1,9 @@
-// Entrée : a, b entiers (naturels)
-// Sortie : r entier (naturel) et  u, v entiers relatifs tels que r = pgcd(a, b) et r = a*u+b*v
-//
-// Initialisation : r := a, r' := b, u := 1, v := 0, u' := 0, v' := 1
-// 								 q  quotient entier
-// 								 rs, us, vs  variables de stockage intermédiaires
-//
-// les égalités r = a*u+b*v et r' = a*u'+b*v' sont des invariants de boucle
-//
-// tant que (r' ≠ 0) faire
-// 	 q := r÷r'
-// 	 rs := r, us := u, vs := v,
-// 	 r := r', u := u', v := v',
-// 	 r' := rs - q*r', u' = us - q*u', v' = vs - q*v'
-// 	fait
-// renvoyer (r, u, v)
 #include "rsa_header.h"
 
+/// \brief Algorithme de Bézout
+/// \file bezout.c
+/// \author Mylène Berce
+/// \date 22 Janvier 2020
 long bezout(uint a,uint b,long *u,long *v){
 /// \pre a, b entier naturels
 /// \post r entier (naturel) et  u, v entiers relatifs tels que r = pgcd(a, b) et r = a*u+b*v

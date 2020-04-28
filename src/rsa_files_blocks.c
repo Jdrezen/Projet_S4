@@ -1,5 +1,14 @@
 #include "rsa_header.h"
 
+/// \brief Fonctions de cryptage/decryptage dans des fichiers, par bloc de 4 caractère
+/// \file rsa_files_blocks.c
+/// \author Jérémie Drezen
+/// \date 2 Mars 2020
+
+///\brief crypt un bloc de 4 caratères
+/// \param[in] blockInt : le bloc à crypter
+/// \param[in] pubKey : la clé publique permettant de crypter le bloc
+/// \return le résultat du cryptage
 uint64 RSAcrypt1BlockGmp(uint64 blockInt, rsaKey_t pubKey){
   mpz_t calc;
   mpz_init(calc);
@@ -7,6 +16,10 @@ uint64 RSAcrypt1BlockGmp(uint64 blockInt, rsaKey_t pubKey){
   return mpz_get_ui(calc);
 }
 
+///\brief decrypt un bloc de 4 caratères
+/// \param[in] blockInt : le bloc à decrypter
+/// \param[in] privKey : la clé privée permettant de decrypter le bloc
+/// \return le résultat du cryptage
 uint64 RSAdecrypt1BlockGmp(uint64 blockInt, rsaKey_t privKey){
   mpz_t calc;
   mpz_init(calc);
@@ -14,16 +27,19 @@ uint64 RSAdecrypt1BlockGmp(uint64 blockInt, rsaKey_t privKey){
   return mpz_get_ui(calc);
 }
 
+///\brief crypt un message dans un fichier
+/// \param[in] inFilename : le nom du fichier qui contient le message
+/// \param[in] outFilename : le nom du fichier où le résultat sera écrit
+/// \param[in] pubKey : la clé publique permettant de crypter le message
 void RSAfile_crypt(char *inFilename, char *outFilename, rsaKey_t pubKey){
   FILE *enter;
   FILE *exit;
   uchar **buffer_lecture ;
   uchar *buffer_ecriture;
   int block;
-  int nb_chars;
   int length_buffer;
+  int ajout;
   size_t output_length;
-  int k=0;
   uint64 calc;
 
   /*Verification fopen*/
@@ -38,8 +54,10 @@ void RSAfile_crypt(char *inFilename, char *outFilename, rsaKey_t pubKey){
 
   /*Recuperation de length*/
   fseek(enter, 0, SEEK_END);
-  nb_chars=ftell(enter)/4;
-  length_buffer = nb_chars + 1;
+  length_buffer = ftell(enter)/4;
+  if((ajout = ftell(enter) % 4) != 0){
+    length_buffer++;
+  }
 
   /*Verification malloc*/
   buffer_lecture = malloc(length_buffer*sizeof(uchar*));
@@ -57,15 +75,20 @@ void RSAfile_crypt(char *inFilename, char *outFilename, rsaKey_t pubKey){
 
   /*Recuperation du ficher dans un tableau*/
   fseek(enter, 0, SEEK_SET);
-  while (!feof(enter)) {
-      fread(buffer_lecture[k], sizeof(uchar), 4, enter);
+  int taille_block;
+  for(int k = 0; k < length_buffer; k++) {
+      taille_block = fread(buffer_lecture[k], sizeof(uchar), 4, enter);
+      if(taille_block != 4){
+        for(int i = taille_block; i <= 4; i++){
+          buffer_lecture[k][i-1] = ' ';
+        }
+      }
       block = convert_4byte2int(buffer_lecture[k]);
       calc = RSAcrypt1BlockGmp(block, pubKey);
       buffer_ecriture = base64_encode(&calc,sizeof(uint64),&output_length);
       fwrite(buffer_ecriture, sizeof(uchar), output_length, exit);
       fwrite(" " , sizeof(uchar), 1,exit);
       fflush(stdout);
-      k++;
   }
 
   fclose(enter);
@@ -73,6 +96,10 @@ void RSAfile_crypt(char *inFilename, char *outFilename, rsaKey_t pubKey){
   free(buffer_lecture);
 }
 
+///\brief decrypt un message dans un fichier
+/// \param[in] inFilename : le nom du fichier qui contient le message
+/// \param[in] outFilename : le nom du fichier où le résultat sera écrit
+/// \param[in] privKey : la clé privée permettant de crypter le message
 void RSAfile_decrypt(char *inFilename, char *outFilename, rsaKey_t privKey){
   FILE *enter;
   FILE *exit;
@@ -80,6 +107,7 @@ void RSAfile_decrypt(char *inFilename, char *outFilename, rsaKey_t privKey){
   uchar *buffer_lecture;
   uchar buffer_ecriture[4];
   int taille = 0;
+  int nb_cara;
   uint64 block;
   size_t output_length;
   size_t fin_block;
@@ -96,11 +124,14 @@ void RSAfile_decrypt(char *inFilename, char *outFilename, rsaKey_t privKey){
   while(fgetc(enter) != ' '){
     taille ++;
   }
+  fseek(enter, 0, SEEK_END);
+  nb_cara = ftell(enter)/taille;
+
   fseek(enter, 0, SEEK_SET);
 
   buffer_lecture = malloc(taille * sizeof(uchar));
 
-  while (!feof(enter)) {
+  for(int i = 0; i < nb_cara; i++) {
     fin_block = fread(buffer_lecture, sizeof(uchar), taille, enter);
     if (fin_block == taille){
       buffer_calcul = base64_decode(buffer_lecture, taille, &output_length);
