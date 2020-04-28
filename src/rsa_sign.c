@@ -101,12 +101,6 @@ void signText(char *inFilename, char *outFilename, rsaKey_t signKey){
 bool verifyText(char *inFilename, char *sign, rsaKey_t pubKey){
   char signText[SHA256_BLOCK_SIZE * 2 + 1];
   char hashRes[SHA256_BLOCK_SIZE * 2 + 1];
-  FILE *enter;
-
-  if((enter = fopen(sign,"r")) == NULL){
-    fprintf(stderr, "Erreur sur le fichier de sortie\n");
-    return false;
-  }
 
   uncryptSign(sign , signText, pubKey);
 
