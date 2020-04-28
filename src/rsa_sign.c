@@ -191,4 +191,5 @@ void requestBlockChain(char *file, char *event, char *mail, rsaKey_t publicKey, 
     fprintf(enter, "Clé Publique (%lu , %lu)\n",publicKey.E, publicKey.N);
     fprintf(enter, "Clé Signature (%lu , %lu)\n",signKey.E, signKey.N);
     fprintf(enter, "%s\n",mail);
+    fclose(enter);
 }
