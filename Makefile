@@ -9,15 +9,17 @@ TESTDIR = test
 TOOLS = rsa_tools.o rsa_print_tools.o rsa_tools_gmp.o int2char.o
 PHASE1 = bezout.o other_base64.o sha256_utils.o sha256.o
 PHASE2 = crypt_decrypt.o rsa_file_char.o rsa_files_blocks.o
+PHASE3 = term_canon.o rsa_sign.o rsa_cmd.o
 PHASE4 = rsa_sign.o
 OBJTOOLS = $(addprefix $(OBJDIR)/, $(TOOLS))
 OBJPHASE1 = $(addprefix $(OBJDIR)/, $(PHASE1))
 OBJPHASE2 = $(addprefix $(OBJDIR)/, $(PHASE2))
+OBJPHASE3 = $(addprefix $(OBJDIR)/, $(PHASE3))
 OBJPHASE4 = $(addprefix $(OBJDIR)/, $(PHASE4))
 
 .PHONY: all clean
 
-all: phase1 phase2_1 phase2_2 phase2_3 phase4
+all: phase1 phase2_1 phase2_2 phase2_3 phase3 phase4
 
 phase1: $(OBJDIR)/phase1.o $(OBJPHASE1) $(OBJTOOLS)
 	$(CC) -o $(BINDIR)/$@ $^ $(LDFLAGS)
@@ -33,6 +35,10 @@ phase2_3: $(OBJDIR)/phase2_3.o $(OBJTOOLS) $(OBJPHASE1) $(OBJPHASE2)
 
 phase4: $(OBJDIR)/phase4.o $(OBJPHASE4) $(OBJTOOLS) $(OBJPHASE1) $(OBJPHASE2)
 	$(CC) -o $(BINDIR)/$@ $^ $(LDFLAGS)
+
+phase3: $(OBJDIR)/phase3.o $(OBJTOOLS) $(OBJPHASE1) $(OBJPHASE2) $(OBJPHASE3)
+	$(CC) -o $(BINDIR)/$@ $^ $(LDFLAGS)
+
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) -o $@ -c $< $(CFLAGS)

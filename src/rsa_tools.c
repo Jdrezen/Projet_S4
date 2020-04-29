@@ -10,17 +10,17 @@ void erreur(char* msg){
   exit(-1);
 }
 
-uint random_uint(uint min,uint max){
+uint64 random_uint(uint64 min,uint64 max){
 /// \brief génère un uint aléatoire entre min et max
 /// \param[in] min et max des uint
 /// \return n : min≤n≤max
   return (rand()%(max-min)) + min;
 }
 
-int premier (uint n) {
+int premier (uint64 n) {
 /// \brief test de primarité, crible d'Erathostène
 /// \returns 1 le nombre est premier, 0 sinon
-  uint d;
+  uint64 d;
 
   if (n % 2 == 0)
     return (n == 2);
@@ -54,11 +54,11 @@ int decompose (uint facteur[], uint64 n){
   return i;
 }
 
-uint puissance(uint a, uint e) {
+uint64 puissance(uint64 a, uint64 e) {
   /// \brief puissance russe
   /// \param[in] : a l'entier et e l'exposant
   /// \returns : a^e
-  uint p;
+  uint64 p;
 
   for (p = 1; e > 0; e = e / 2) {
     if (e % 2 != 0)
@@ -81,12 +81,12 @@ uint64 puissance_mod_n (uint64 a, uint64 e, uint64 n) {
   return p;
 }
 
-uint genereUint(uint max,int *cpt){
+uint64 genereUint(uint64 max,int *cpt){
   /// \brief génère un nombre premier inférieur à max
   /// \param[in] max : la borne sup
   /// \param[out] cpt : nombre d'essais
   /// \returns : le nombre premier
-  uint num;
+  uint64 num;
   *cpt=1;
   do{
     num = random_uint(17,max);
@@ -101,10 +101,10 @@ uint genereUint(uint max,int *cpt){
   return num;
 }
 
-int rabin (uint a, uint n) {
+int rabin (uint64 a, uint64 n) {
   /// \brief test de Rabin sur la pimarité d'un entier
   /// \brief c'est un test statistique
-  uint p, e, m;
+  uint64 p, e, m;
   int i, k;
 
   e = m = n - 1;
@@ -123,9 +123,9 @@ int rabin (uint a, uint n) {
   return 0;
 }
 
-uint genereUintRabin(uint max,int *cpt){
+uint64 genereUintRabin(uint64 max,int *cpt){
   /// \brief fournit un nombre premier vérifié avec le test de rabin
-  uint num;
+  uint64 num;
   *cpt=1;
   int a=2;
   do{
@@ -139,11 +139,11 @@ uint genereUintRabin(uint max,int *cpt){
   return num;
 }
 
-uint pgcdFast(uint a,uint b){
+uint64 pgcdFast(uint64 a,uint64 b){
   /// \brief pgcd rapide de a et b
   /// \param[in] a et b les deux entiers
   /// \returns pgcd(a,b)
-  uint pow2;
+  uint64 pow2;
   // cas trivial ... PGCD(a,0)=a ou PGCD(0,b)=b
   // dans les deux cas : PGCD(a,b)=a+b si l'un des deux nombres est nul
   if(0==a || b==0) return a+b;
@@ -199,8 +199,8 @@ void genKeysRabin(rsaKey_t *pubKey,rsaKey_t *privKey){
   /// \param[out] privKey : clef privée
   ///
   int cpt1,cpt2;
-  uint64 num1 = genereUintRabin(2000,&cpt1);
-  uint64 num2 = genereUintRabin(2000,&cpt2);
+  uint64 num1 = genereUintRabin(2000000,&cpt1);
+  uint64 num2 = genereUintRabin(2000000,&cpt2);
 
   fprintf(logfp,"num1=%lu, cpt1=%d\n",num1,cpt1);
   fprintf(logfp,"num2=%lu, cpt2=%d\n",num2,cpt2);

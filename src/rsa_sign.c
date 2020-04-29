@@ -19,7 +19,7 @@ void text2sha(char *inFilename,char *shaStr){
   }
 
   fseek(enter, 0, SEEK_END);
-  nb_char = ftell(enter)/4;
+  nb_char = ftell(enter);
   fseek(enter, 0, SEEK_SET);
 
   buffer = malloc(sizeof(BYTE) * nb_char);
