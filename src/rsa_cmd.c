@@ -362,9 +362,8 @@ void crypte(utilisateur_t u, char* fileIn, char* fileOut, int id, char* idContac
       printf("L'identificateur de la clef recherché n'existe pas\n");
       return;
     }
-    printf(" N de la pubkey : %lu\n", u.repertoire[iC].list_key[i].keys.pubKey.N);
+
     if (!strcmp(u.repertoire[iC].list_key[i].type, "Chiffrement")){
-      printf("%lu\n", u.repertoire[iC].list_key[i].keys.pubKey.N);
       RSAfile_crypt(fileIn, fileOut, u.repertoire[iC].list_key[i].keys.pubKey);
       return;
     }
@@ -380,9 +379,8 @@ void crypte(utilisateur_t u, char* fileIn, char* fileOut, int id, char* idContac
       printf("L'id recherché n'existe pas\n");
       return;
     }
-    printf(" N de la pubkey : %lu\n", u.list_key[i].keys.pubKey.N);
+
     if (!strcmp(u.list_key[i].type, "Chiffrement")){
-      printf("%lu\n", u.list_key[i].keys.pubKey.N);
       RSAfile_crypt(fileIn, fileOut, u.list_key[i].keys.pubKey);
       return;
     }
@@ -1021,7 +1019,6 @@ void addkeys(utilisateur_t *u, char idContact_nom[NAME_MAX_SIZE]){
   printf("Identificateur de la nouvelle clef : ");
   char entree[NAME_MAX_SIZE];
   char* end;
-  clean_stdin();
   fgets(entree, sizeof(entree), stdin);
   //enleve le \n
   int taille = strlen(entree);
@@ -1151,10 +1148,7 @@ void signtext_interprete(utilisateur_t u, char *fileIn, int id, char* fileOut){
     printf("La clef doit etre de type Signature\n");
     return;
   }
-  printf("avant jerem\n");
-  printf("clef privée : (%lu, %lu)\n", u.list_key[i].keys.privKey.E, u.list_key[i].keys.privKey.N);
   signText(fileIn, fileOut, u.list_key[i].keys.privKey);
-  printf("apres jerem\n");
 }
 
 /// \brief vérifie une signature avec une clef publique de l'utilisateur
