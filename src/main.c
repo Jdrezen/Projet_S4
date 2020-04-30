@@ -1,10 +1,7 @@
-#include "../src/rsa_header.h"
+#include "rsa_header.h"
 FILE *logfp;
 
-// ATTENTION, QUAND ON OUVRE UN FICHIER ON SUPPRIME AUTOMATIQUEMENT
-
 int main(int argc, char* argv[]) {
-  //Term_non_canonique();
 
   if (argc>1){
     logfp = fopen(argv[1],"w+");
@@ -37,25 +34,13 @@ int main(int argc, char* argv[]) {
   printf("rmcontact <idContact> : supprime le contact et toutes ses clefs.\n");
   printf("help : affiche l'ensemble de ces instructions\n");
 
-  mot_de_passe("mot_de_passe.txt");
+  mot_de_passe("Data/mot_de_passe.txt");
 
   utilisateur_t user;
   init(&user);
 
-  // user.list_key[0].keys.pubKey.E = 23;
-  // user.list_key[0].keys.pubKey.N = 8889895013;
-  // user.list_key[0].keys.privKey.E = 3865086887;
-  // user.list_key[0].keys.privKey.N = 8889895013;
-  // user.list_key[0].id = 1;
-  // strcpy(user.list_key[0].type, "Chiffrement");
-  // user.nb_keys++;
-  // listkeys(user, 1, "");
-
-  newkeys(&user, 3, "Signature");
-  // signtext_interprete(user, "a.txt", 3, "b.txt");
   while (true){
     balises(&user);
   }
-  Term_canonique();
   return 0;
 }
