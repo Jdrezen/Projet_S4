@@ -1,17 +1,3 @@
- ##Pour tester la fonction de Bézout (bezout.c)
- gcc test-bezout.c bezout.c rsa_tools.c -o bezout
+Pour envoyer des messages par mail, il faut utiliser gmail
 
- ##Pour tester la phase 2.1 en entier :
- make -f Makefile-phase2_1
-
- Enlevez du makefile les fichiers qui ne sont pas encore développés
-
-##Pour tester la conversion de binaire en base64
-make -f Makefile-base64
-
-##Pour tester la conversion de 4 octets en uint et vice-verça
-
-gcc test-blocs.c int2char.c -o test-blocs
-
-## Test du reste du code
-Les fichiers de tests et éventuellement les Makefiles correspondants arriveront un peu plus tard.
+Pour la partie Java, pour recevoir des mail il faut utiliser gmail ainsi qu'accepter de recevoir des mails d'applications non autorisées
