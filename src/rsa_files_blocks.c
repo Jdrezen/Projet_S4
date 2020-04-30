@@ -36,7 +36,7 @@ void RSAfile_crypt(char *inFilename, char *outFilename, rsaKey_t pubKey){
   FILE *exit;
   uchar **buffer_lecture ;
   uchar *buffer_ecriture;
-  int block;
+  uint64 block;
   int length_buffer;
   int ajout;
   size_t output_length;
