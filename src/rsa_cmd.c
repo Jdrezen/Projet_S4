@@ -12,7 +12,8 @@ void clean_stdin(void){
   } while (c != '\n' && c != EOF);
 }
 
-//V1 : sans le hash
+/// \brief Si c'est la première connexion de l'utilisateur alors il crée un mot de passe, sinon il tape son mot de passe et on compare son hash avec celui du mot de passe qui est dans filemdp
+/// \param[in] filmdp : fichier qui contient ou contiendra le hash du mdp
 void mot_de_passe(char* filemdp){
   Term_non_canonique();
 
@@ -22,11 +23,6 @@ void mot_de_passe(char* filemdp){
     Term_canonique();
     return;
   }
-  printf("Ouverture du fichier %s\n", filemdp);
-  //Est-ce qu'il y a quelque chose dans le fichier ?
-  //Si y'a r ca veut dire le mec vient pour la premiere fois
-  //dans ce cas la faut qu'il crée un mpd
-  //sinon on lui demande le mdp et on le compare avec celui qu'on a
   char caracterePremier;
   //On lit le prmeier caractère du fichier
   caracterePremier = fgetc(fichier);
@@ -35,6 +31,7 @@ void mot_de_passe(char* filemdp){
     //creation de mot de passe
     char mdp[200];
     char mdp_verif[200];
+    char hash_mdp[SHA256_BLOCK_SIZE*2 + 1];
     int taille;
     printf("Création du mot de passe\n");
     printf("Tapez votre mot de passe de 32 caractere maximum : ");
@@ -58,17 +55,10 @@ void mot_de_passe(char* filemdp){
       taille = strlen(mdp_verif);
       mdp_verif[taille -1] = '\0';
     }
-    //stocke le mot de passe dans le fichier
-    //HASH DU MDP AVANT DE LE STOCKER
-    fprintf(fichier, "%s\n", mdp);
+    //stocke le hash mot de passe dans le fichier
+    sha256ofString(mdp,hash_mdp);
+    fprintf(fichier, "%s\n", hash_mdp);
     fclose(fichier);
-    printf("Fermeture du fichier %s\n", filemdp);
-    text2sha(filemdp, mdp);
-    fichier = fopen(filemdp, "w");
-    printf("Ouverture du fichier %s\n", filemdp);
-    fprintf(fichier, "%s\n", mdp);
-    fclose(fichier);
-    printf("Fermeture du fichier %s\n", filemdp);
     printf("\nVous êtes entrés dans l'interprète\n");
   }
   else{
@@ -76,57 +66,36 @@ void mot_de_passe(char* filemdp){
     //verification de mot de passe
     char mdp[200];
     int taille;
-    char mdp_fichier[200];
+    char hash_mdp[SHA256_BLOCK_SIZE*2 + 1];
+    char hash_mdp_fichier[SHA256_BLOCK_SIZE*2 + 1];
     printf("Tapez votre mot de passe :");
     fgets(mdp, sizeof(mdp), stdin);
     //enleve le \n
     taille = strlen(mdp);
     mdp[taille -1] = '\0';
-    //FAUT FAIRE LE HASH DU MDP
-    FILE* fichier_aux = fopen("fichier_aux.txt", "w+");
-    printf("Ouverture du fichier fichier_aux.txt\n");
-    fprintf(fichier_aux, "%s\n", mdp);
-    fclose(fichier_aux);
-    printf("Fermeture du fichier fichier_aux.txt\n");
-    text2sha("fichier_aux.txt", mdp);
-    fichier_aux = fopen("fichier_aux.txt", "w+");
-    printf("Ouverture du fichier fichier_aux.txt\n");
-    fclose(fichier_aux);
-    printf("Fermeture du fichier fichier_aux.txt\n");
+    //hash du mdp
+    sha256ofString(mdp,hash_mdp);
     char caractere;
     fseek(fichier, 0, SEEK_SET);
     caractere = fgetc(fichier);
     int i = 0;
     while(caractere!='\n'){
-      mdp_fichier[i] = caractere;
+      hash_mdp_fichier[i] = caractere;
       i++;
       caractere = fgetc(fichier);
     }
-    mdp_fichier[i] = '\0';
+    hash_mdp_fichier[i] = '\0';
     //printf("mdp_fichier : %s\n", mdp_fichier);
-    //DANS LE WHILE FAUT COMPARER LES 2 HASH
-    while (strcmp(mdp, mdp_fichier)) {
+    while (strcmp(hash_mdp, hash_mdp_fichier)) {
       printf("\nMot de passe incorrect. Veuillez réessayer.\n");
       printf("Tapez votre mot de passe : ");
       fgets(mdp, sizeof(mdp), stdin);
       //enleve le \n
       taille = strlen(mdp);
       mdp[taille -1] = '\0';
-      //FAUT FAIRE LE HASH DU MDP
-      FILE* fichier_aux = fopen("fichier_aux.txt", "w+");
-      printf("Ouverture du fichier fichier_aux.txt\n");
-      fprintf(fichier_aux, "%s\n", mdp);
-      fclose(fichier_aux);
-      printf("Fermeture du fichier fichier_aux.txt\n");
-      text2sha("fichier_aux.txt", mdp);
-      fichier_aux = fopen("fichier_aux.txt", "w+");
-      printf("Ouverture du fichier fichier_aux.txt\n");
-      fclose(fichier_aux);
-      printf("Fermeture du fichier fichier_aux.txt\n");
-      //FAUT FAIRE LE HASH
+      sha256ofString(mdp,hash_mdp);
     }
     fclose(fichier);
-    printf("Fermeture du fichier %s\n", filemdp);
     printf("\nMot de passe correct, vous entrez dans l'interprète.\n");
   }
   Term_canonique();
@@ -139,8 +108,6 @@ void mot_de_passe(char* filemdp){
 /// \param[in] idClef : emplacement du futur idClef
 /// \returns 1 si le format n'est pas correct et 0 sinon
 int extraire(char* chaine, char idContact[NAME_MAX_SIZE], int* idClef){
-  // printf("[Extraire] debut\n");
-  // clean_stdin();
   char* pCaractere;
   char* end;
   long nombre;
@@ -150,27 +117,19 @@ int extraire(char* chaine, char idContact[NAME_MAX_SIZE], int* idClef){
     return 0;
   }
   if ((pCaractere = strchr(chaine, '/')) == NULL){
-    // printf("[Extraire] y'a pas /\n");
     //y'a pas /
     nombre = strtol(chaine, &end, 10);
     if (strcmp(end, "")){
       //que idContact
-      // printf("[Extraire] y'a que idContact\n");
       strcpy(idContact, chaine);
-      // printf("[Extraire] apres strcpy\n");
       *idClef = -1;
-      // printf("[Extraire] fin que idContact\n");
       return 0;
     }
     //que idClef
-    // printf("[Extraire] y'a que idClef\n");
     strcpy(idContact, "");
-    // printf("[Extraire] apres strcpy\n");
     *idClef = (int)nombre;
-    // printf("[Extraire] fin que idClef\n");
     return 0;
   }
-  // printf("[Extraire] y'a /\n");
   //y'a /
   //pCaractere contient l'adresse du / dans la chaine
   char idClef_char[100];
@@ -180,7 +139,6 @@ int extraire(char* chaine, char idContact[NAME_MAX_SIZE], int* idClef){
     i++;
   }
   idContact[i] = '\0';
-  printf("[Extraire] idContact : %s\n", idContact);
   i++;
   int j=0;
   while (chaine[i] != '\0') {
@@ -189,17 +147,14 @@ int extraire(char* chaine, char idContact[NAME_MAX_SIZE], int* idClef){
     j++;
   }
   idClef_char[j] = '\0';
-  printf("[Extraire] idClef_char : %s\n", idClef_char);
   nombre = strtol(idClef_char, &end, 10);
   if (strcmp(end, "")){
     //idClef n'est pas un nombre
     strcpy(idContact, "");
     *idClef = -1;
-    printf("[Extraire] idClef n'est pas un nombre\n");
     return 1;
   }
   *idClef = (int)nombre;
-  printf("[Extraire] fin idContact & idClef\n");
   return 0;
 }
 
@@ -462,7 +417,6 @@ void uncrypt(utilisateur_t u, char* fileIn, char* fileOut, int id){
 /// \param[in] fileOut : fichier où on stocke les données de l'utilisateur
 void save(utilisateur_t u, char* fileOut){
   FILE* out = fopen(fileOut, "w+");
-  printf("Ouverture du fichier %s\n", fileOut);
   fprintf(out, "Nombre de clefs : %d\n", u.nb_keys);
   for (int i = 0; i < u.nb_keys; i++) {
     fprintf(out, "Identificateur %d :\n", u.list_key[i].id);
@@ -485,7 +439,6 @@ void save(utilisateur_t u, char* fileOut){
     }
   }
   fclose(out);
-  printf("Fermeture du fichier %s\n", fileOut);
 }
 
 /// \brief sauve la clef publique de l'utilisateur ou d'un contact dans un fichier en base64
@@ -495,7 +448,6 @@ void save(utilisateur_t u, char* fileOut){
 /// \param[in] idContact : identificateur d'un contact
 void savepub(utilisateur_t u, int id, char* fileOut) {
   FILE* out = fopen(fileOut, "w+");
-  printf("Ouverture du fichier %s\n", fileOut);
   int i = 0;
   int output_length;
   while (i < u.nb_keys && id != u.list_key[i].id) {
@@ -508,61 +460,49 @@ void savepub(utilisateur_t u, int id, char* fileOut) {
   char *strKey=base64_encode(&(u.list_key[i].keys.pubKey),sizeof(u.list_key[i].keys.pubKey),&output_length);
   fprintf(out,"%s\n",strKey);
   fclose(out);
-  printf("Fermeture du fichier %s\n", fileOut);
 }
 
 /// \brief charge les données de l'utilisateur qui étaient stockées dans un fichier dans une structure de données
 /// \param[in] u : structure de données de l'utilisateur
 /// \param[in] fileIn : fichier contenant les donnnées de l'utilisateur
 void load(utilisateur_t* u, char* fileIn){
-  printf("[load] debut\n");
   FILE* in;
   if ((in = fopen(fileIn, "r+")) == NULL) {
     perror(fileIn);
     return;
   }
-  printf("Ouverture du fichier %s\n", fileIn);
   //nb_keys
   fseek(in, 18, SEEK_SET);
   fscanf(in, "%d", &u->nb_keys);
-  //printf(" Nombre de key : %d\n", u->nb_keys);
   for (int i = 0; i < u->nb_keys; i++) {
     //identificateur
     fseek(in, 16, SEEK_CUR);
     fscanf(in, "%d", &u->list_key[i].id);
-    //printf(" id : %d\n", u->list_key[i].id);
 
     //type
     fseek(in, 3, SEEK_CUR);
     fscanf(in, "%s", u->list_key[i].type);
-    //printf(" type : %s\n", u->list_key[i].type);
 
     //PubKey pour le E
     fseek(in, 11, SEEK_CUR);
     fscanf(in, "%lu", &u->list_key[i].keys.pubKey.E);
-    //printf(" E de la pubkey : %lu\n", u->list_key[i].keys.pubKey.E);
     //PubKey pour le N
     fseek(in, 1, SEEK_CUR);
     fscanf(in, "%lu", &u->list_key[i].keys.pubKey.N);
-    printf(" N de la pubkey : %lu\n", u->list_key[i].keys.pubKey.N);
 
     //PrivKey pour le E
     fseek(in, 13, SEEK_CUR);
     fscanf(in, "%lu", &u->list_key[i].keys.privKey.E);
-    //printf(" E de la PrivKey : %lu\n", u->list_key[i].keys.privKey.E);
     //PrivKey pour le N
     fseek(in, 1, SEEK_CUR);
     fscanf(in, "%lu", &u->list_key[i].keys.privKey.N);
-    //printf(" N de la PrivKey : %lu\n", u->list_key[i].keys.privKey.N);
     fseek(in, 1, SEEK_CUR); //pour la parenthese
-    printf(" N de la pubkey : %lu\n", u->list_key[i].keys.pubKey.N);
   }
   //nb_contacts
   fseek(in, 22, SEEK_CUR);
   fscanf(in, "%d", &u->nb_contacts);
   for (int i = 0; i < u->nb_contacts; i++) {
     //identificateur
-    printf("[load] identificateur\n");
     fseek(in, 29, SEEK_CUR);
     int i_identificateur = 0;
     char caractere;
@@ -571,10 +511,7 @@ void load(utilisateur_t* u, char* fileIn){
       i_identificateur++;
     }
     u->repertoire[i].identificateur[i_identificateur] = '\0';
-    printf("[load] identificateur : %s\n", u->repertoire[i].identificateur);
-    //fscanf(in, "%s", u->repertoire[i].identificateur);
     //nom
-    printf("[load] nom\n");
     fseek(in, 6, SEEK_CUR);
     int i_nom = 0;
     while ((caractere=fgetc(in)) != '\n') {
@@ -582,10 +519,7 @@ void load(utilisateur_t* u, char* fileIn){
       i_nom++;
     }
     u->repertoire[i].nom[i_nom] = '\0';
-    printf("[load] nom : %s\n", u->repertoire[i].nom);
-    //fscanf(in, "%s", u->repertoire[i].nom);
     //prenom
-    printf("[load] prenom\n");
     fseek(in, 9, SEEK_CUR);
     int i_prenom = 0;
     while ((caractere=fgetc(in)) != '\n') {
@@ -593,9 +527,7 @@ void load(utilisateur_t* u, char* fileIn){
       i_prenom++;
     }
     u->repertoire[i].prenom[i_prenom] = '\0';
-    //fscanf(in, "%s", u->repertoire[i].prenom);
     //commentaire
-    printf("[load] commentaire\n");
     fseek(in, 14, SEEK_CUR);
     int i_commentaire = 0;
     while ((caractere=fgetc(in)) != '\n') {
@@ -604,47 +536,34 @@ void load(utilisateur_t* u, char* fileIn){
     }
     u->repertoire[i].commentaire[i_commentaire] = '\0';
     //nb_keys
-    printf("[load] nb_keys\n");
     fseek(in, 17, SEEK_CUR);
     fscanf(in, "%d", &u->repertoire[i].nb_keys);
-    printf(" Nombre de key : %d\n", u->repertoire[i].nb_keys);
     for (size_t j = 0; j < u->repertoire[i].nb_keys; j++) {
       //identificateur
-      printf("[load] id\n");
       fseek(in, 16, SEEK_CUR);
       fscanf(in, "%d", &u->repertoire[i].list_key[j].id);
-      printf(" id : %d\n", u->repertoire[i].list_key[j].id);
 
       //type
-      printf("[load] type\n");
       fseek(in, 3, SEEK_CUR);
       fscanf(in, "%s", u->repertoire[i].list_key[j].type);
-      printf(" type : %s\n", u->repertoire[i].list_key[j].type);
 
       //PubKey pour le E
       fseek(in, 11, SEEK_CUR);
       fscanf(in, "%lu", &u->repertoire[i].list_key[j].keys.pubKey.E);
-      //printf(" E de la pubkey : %lu\n", u->list_key[i].keys.pubKey.E);
       //PubKey pour le N
       fseek(in, 1, SEEK_CUR);
       fscanf(in, "%lu", &u->repertoire[i].list_key[j].keys.pubKey.N);
-      printf(" N de la pubkey : %lu\n", u->repertoire[i].list_key[j].keys.pubKey.N);
 
       //PrivKey pour le E
       fseek(in, 13, SEEK_CUR);
       fscanf(in, "%lu", &u->repertoire[i].list_key[j].keys.privKey.E);
-      //printf(" E de la PrivKey : %lu\n", u->list_key[i].keys.privKey.E);
       //PrivKey pour le N
       fseek(in, 1, SEEK_CUR);
       fscanf(in, "%lu", &u->repertoire[i].list_key[j].keys.privKey.N);
-      //printf(" N de la PrivKey : %lu\n", u->list_key[i].keys.privKey.N);
       fseek(in, 1, SEEK_CUR); //pour la parenthese
-      printf(" N de la pubkey : %lu\n", u->repertoire[i].list_key[j].keys.pubKey.N);
     }
   }
   fclose(in);
-  printf("Fermeture du fichier %s\n", fileIn);
-  printf("[load] FIN FIN FIN\n");
 }
 
 
@@ -860,11 +779,9 @@ void modifycontact(utilisateur_t *u, char idContact[NAME_MAX_SIZE]){
 
     if (nombre == 4) {
       // Commentaire
-      printf("[modifycontact] modification : %s\n", modification);
       int i_commentaire = 0;
       strcpy(u->repertoire[iC].commentaire,"");
       while (modification[i_commentaire] != '\0') {
-        printf("[modifycontact] boucle \n");
         u->repertoire[iC].commentaire[i_commentaire] = modification[i_commentaire];
         i_commentaire++;
       }
@@ -1202,7 +1119,15 @@ void addcontact(utilisateur_t* u, char idContact[NAME_MAX_SIZE]){
   printf("Prenom : ");
   scanf("%s", u->repertoire[u->nb_contacts].prenom);
   printf("Commentaire : ");
-  scanf("%s", u->repertoire[u->nb_contacts].commentaire);
+  clean_stdin();
+  char caractere = fgetc(stdin);
+  int i_commentaire = 0;
+  while(caractere!='\n'){
+    u->repertoire[u->nb_contacts].commentaire[i_commentaire] = caractere;
+    i_commentaire++;
+    caractere = fgetc(stdin);
+  }
+  u->repertoire[u->nb_contacts].commentaire[i_commentaire] = '\0';
   u->repertoire[u->nb_contacts].nb_keys = 0;
   u->nb_contacts++;
 }
@@ -1351,7 +1276,6 @@ void revoke_interpreteur(utilisateur_t u, int id){
 /// \brief appelle les fonctions précédentes en fonction de ce que l'utilisateur tape, vérifie le format de ce qui est tapé
 /// \param[in] u : structure de données de l'utilisateur
 void balises(utilisateur_t* user){
-  // printf("[balises] debut\n");
   char entree[100];
   char fonction[100];
   char arg1[100];
@@ -1359,8 +1283,6 @@ void balises(utilisateur_t* user){
   char arg3[100];
   int idClef;
   char idContact[NAME_MAX_SIZE];
-  //logfp = fopen("poubelle.txt", "w+");
-  //clean_stdin();
   fgets(entree, sizeof(entree), stdin);
   int i=0;
   int i_arg;
@@ -1372,8 +1294,6 @@ void balises(utilisateur_t* user){
     i++;
   }
   fonction[i] = '\0';
-  //printf("fonction : %s\n", fonction);
-
   if (entree[i] == ' '){
     i++;
     i_arg =0;
@@ -1383,7 +1303,6 @@ void balises(utilisateur_t* user){
       i_arg++;
     }
     arg1[i_arg] = '\0';
-    //printf("arg1 : %s\n", arg1);
 
     if (entree[i] == ' '){
       i++;
@@ -1394,7 +1313,6 @@ void balises(utilisateur_t* user){
         i_arg++;
       }
       arg2[i_arg] = '\0';
-      //printf("arg2 : %s\n", arg2);
 
       if (entree[i] == ' '){
         i++;
@@ -1405,7 +1323,6 @@ void balises(utilisateur_t* user){
           i_arg++;
         }
         arg3[i_arg] = '\0';
-        //printf("arg3 : %s\n", arg3);
       }
     }
   }
@@ -1418,7 +1335,6 @@ void balises(utilisateur_t* user){
   //listkeys
   if (!strcmp("listkeys", fonction)){
     if (extraire(arg1, idContact, &idClef)) {
-      //printf("[Balises] cas 1\n");
       printf("Usage : listkeys [<idcontact/idclef>]\n");
       return;
     }
@@ -1449,8 +1365,6 @@ void balises(utilisateur_t* user){
   }
 
   //newkeys
-  //remettre la verification de si c'est un nombre
-  //faut verifier que le nombre est >0
   if (!strcmp("newkeys", fonction)){
     char* end;
     long nombre;
@@ -1633,11 +1547,6 @@ void balises(utilisateur_t* user){
       printf("Usage : signtext <filein> <id> <fileout> \n");
       return;
     }
-    // printf("[balises] fonction : %s\n", fonction);
-    // printf("[balises] arg1 : %s\n", arg1);
-    // printf("[balises] arg2 : %s\n", arg2);
-    // printf("[balises] nombre : %d\n", nombre);
-    // printf("[balises] arg3 : %s\n", arg3);
     signtext_interprete(*user, arg1, nombre, arg3);
     printf("Done.\n");
     return;

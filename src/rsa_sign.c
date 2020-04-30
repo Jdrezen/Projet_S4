@@ -13,7 +13,7 @@ void text2sha(char *inFilename,char *shaStr){
   int nb_char = 0;
   BYTE *buffer;
   FILE *enter;
-  if((enter = fopen(inFilename,"rb")) == NULL){
+  if((enter = fopen(inFilename,"rb")) == NULL){ //c'etait rb
     fprintf(stderr, "Erreur sur le fichier d'entrée\n");
     return;
   }
@@ -22,7 +22,7 @@ void text2sha(char *inFilename,char *shaStr){
   nb_char = ftell(enter);
   fseek(enter, 0, SEEK_SET);
 
-  buffer = malloc(sizeof(BYTE) * nb_char);
+  buffer = malloc(sizeof(BYTE) * nb_char+1);
 
   int i = 0;
   while (!feof(enter)) {
@@ -44,14 +44,14 @@ void signText(char *inFilename, char *outFilename, rsaKey_t signKey){
   char hashRes[SHA256_BLOCK_SIZE*2 + 1];
   uchar **buffer_lecture ;
   uchar *buffer_ecriture;
-  int block;
+  uint64 block;
   size_t output_length;
   int length_buffer = ((SHA256_BLOCK_SIZE * 2 + 1) / 4) + 1;
   int j = 0;
   int k = 0;
   uint64 calc;
 
-  if((exit = fopen(outFilename,"wr")) == NULL){
+  if((exit = fopen(outFilename,"wrb")) == NULL){
     fprintf(stderr, "Erreur sur le fichier de sortie\n");
     return;
   }
@@ -69,7 +69,6 @@ void signText(char *inFilename, char *outFilename, rsaKey_t signKey){
       return;
     }
   }
-
   text2sha(inFilename, hashRes);
 
 
@@ -84,7 +83,7 @@ void signText(char *inFilename, char *outFilename, rsaKey_t signKey){
 
   for (size_t i = 0; i < length_buffer; i++) {
     block = convert_4byte2int(buffer_lecture[i]);
-    calc = RSAcrypt1BlockGmp(block, signKey);
+    calc = RSAdecrypt1BlockGmp(block, signKey);
     buffer_ecriture = base64_encode(&calc,sizeof(uint64),&output_length);
     fwrite(buffer_ecriture, sizeof(uchar), output_length, exit);
     fwrite(" " , sizeof(uchar), 1,exit);
@@ -105,7 +104,6 @@ bool verifyText(char *inFilename, char *sign, rsaKey_t pubKey){
   uncryptSign(sign , signText, pubKey);
 
   text2sha(inFilename, hashRes);
-
   if(strcmp(signText,hashRes) == 0){
     return true;
   }

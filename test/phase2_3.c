@@ -10,6 +10,9 @@ int main(int argc,char **argv){
   rsaKey_t pubKey = {23,8889895013};
   rsaKey_t privKey = {3865086887,8889895013};
 
+  //rsaKey_t pubKey = {7,1467103114917553699};
+  //rsaKey_t privKey = {1818700663,1467103114917553699};
+
   printf("Chiffement du message...\n");
   RSAfile_crypt("Data/msg.txt","Data/res.txt",pubKey);
   printf("Fini, cryptage\n");

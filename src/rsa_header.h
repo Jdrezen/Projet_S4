@@ -25,7 +25,7 @@
 #define MAX_STR 10 //
 #define COMMENTAIRE_SIZE 250
 #define REPERTOIRE_SIZE 100
-#define FILEOUTDEFAULT "default.txt"
+#define FILEOUTDEFAULT "Data/default.txt"
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAXI(a,b) (((a)>(b))?(a):(b))
@@ -77,10 +77,6 @@ typedef struct utilisateur_s {
 	int nb_contacts;
 } utilisateur_t;
 
-
-// prototypes de sp
-void erreur(char* msg); // pour afficher les msg d'erreurs
-
 // phase 1
 int decompose (uint facteur[], uint64 n) ; // reçoit n, remplit le tableau de facteurs premiers (realloc)
 uint64 puissance_mod_n (uint64 a, uint64 e, uint64 n); // puissance modulaire
@@ -106,29 +102,19 @@ uint64 RSAdecrypt1BlockGmp(uint64 blockInt, rsaKey_t privKey);
 // avec les fichiers
 void RSAfile_crypt(char *inFilename,char *outFilename, rsaKey_t pubKey);
 void RSAfile_decrypt(char *inFilename,char *outFilename,rsaKey_t privKey);
-void RSAcryptFile(char *inFilename,
-                    char *outFilename,
-                    rsaKey_t pubKey,
-                    int *output_length);
+void RSAcryptFile(char *inFilename, char *outFilename, rsaKey_t pubKey, int *output_length);
 void RSAunCryptFile(char *inFilename,char *outFilename,rsaKey_t privKey, int length);
 
 // signature
-//tabUint64_t * signText(char *inFilename,rsaKey_t signKey);
-void inputKey(uint64 E,uint64 N,rsaKey_t *key);
-tabUint64_t * string2intBlocks(uchar *str);
-uchar * num2string(tabUint64_t numArray);
-uint64 * giveMeMem(int dim);
-tabUint64_t * RSAcryptUint64(tabUint64_t numMsg,rsaKey_t pubKey);
-tabUint64_t * RSAunCryptUint64(tabUint64_t numMsgC,rsaKey_t privKey);
 void text2sha(char *inFilename,char shaStr[SHA256_BLOCK_SIZE*2 + 1]);
 void signText(char *inFilename, char *outFilename, rsaKey_t signKey);
 bool verifyText(char *sign, char *inFilename, rsaKey_t pubKey);
 void uncryptSign(char *inFilename , char *sign, rsaKey_t pubKey);
 void uncryptSignedText(char *inFilename , char *sign, char *outFilename, rsaKey_t pubKey, rsaKey_t privKey);
+void requestBlockChain(char *file, char *event, char *mail, rsaKey_t publicKey, rsaKey_t signKey);
+
 // GMP
 void mersenneGmp(mpz_t resGmp,uint64 max,uint64 p); // ovni
-void printKeyPair(keyPair_t keyPair);
-char * verifySignText(char *inFilename,tabUint64_t cryptAr, rsaKey_t verifyKey);
 void puissance_mod_n_gmp(mpz_t res,uint64 a, uint64 e, uint64 n); // puis mod avec gmp
 // interpreteur de commandes
 int extraire(char* chaine, char idContact[NAME_MAX_SIZE], int* idClef);
@@ -174,19 +160,6 @@ void mot_de_passe(char* filemdp);
 /*  Copyright 2017 IRIT-Université Toulouse 3   	  */
 /*	Paul Sabatier, France. All rights reserved.	*/
 /* ====================================================	*/
-
-
-/* ANSI/VT100 term color and formatting from			*/
-/* https://misc.flogisoft.com/bash/tip_colors_and_formatting	*/
-
-/* Term_non_canonique =================================
-//  Permet de lire le clavier touche par touche, sans
-// écho.
-//===================================================*/
 int Term_non_canonique ();
-
-/* Term_canonique =====================================
-//  Mode normal du clavier: lecture par ligne et écho.
-//===================================================*/
 int Term_canonique ();
 #endif
