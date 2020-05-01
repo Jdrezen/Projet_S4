@@ -1227,13 +1227,13 @@ void certify(utilisateur_t u, int id){
       printf("Quel est votre mail ?\n");
       scanf("%s", mail);
       printf("mail : %s\n", mail);
-      requestBlockChain("TxEnAttente", "CSK", mail, u.list_key[i].keys.pubKey, u.list_key[i].keys.privKey);
+      requestBlockChain("../../Partie_Java/TxEnAttente.txt", "CCK", mail, u.list_key[i].keys.pubKey, u.list_key[i].keys.privKey);
     }
     else{
       printf("Quel est votre mail ?\n");
       scanf("%s", mail);
       printf("mail : %s\n", mail);
-      requestBlockChain("TxEnAttente", "CCK", mail, u.list_key[i].keys.pubKey, u.list_key[i].keys.privKey);
+      requestBlockChain("../../Partie_Java/TxEnAttente.txt", "CSK", mail, u.list_key[i].keys.pubKey, u.list_key[i].keys.privKey);
     }
     return;
 
@@ -1252,16 +1252,16 @@ void revoke_interpreteur(utilisateur_t u, int id){
     i++;
   }
   if (id == u.list_key[i].id){
-    char* mail;
+    char mail[COMMENTAIRE_SIZE];
     if (strcmp(u.list_key[i].type, "Signature")){
       printf("Quel est votre mail ?\n");
       scanf("%s", mail);
-      requestBlockChain("TxEnAttente", "RSK", mail, u.list_key[i].keys.pubKey, u.list_key[i].keys.privKey);
+      requestBlockChain("../../Partie_Java/TxEnAttente.txt", "RCK", mail, u.list_key[i].keys.pubKey, u.list_key[i].keys.privKey);
     }
     else{
       printf("Quel est votre mail ?\n");
       scanf("%s", mail);
-      requestBlockChain("TxEnAttente", "RCK", mail, u.list_key[i].keys.pubKey, u.list_key[i].keys.privKey);
+      requestBlockChain("../../Partie_Java/TxEnAttente.txt", "RSK", mail, u.list_key[i].keys.pubKey, u.list_key[i].keys.privKey);
     }
     return;
   }
